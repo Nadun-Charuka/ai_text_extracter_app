@@ -1,5 +1,8 @@
 import 'package:ai_text_extracter_app/widgets/image_preview.dart';
+import 'package:ai_text_extracter_app/widgets/recognized_text_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,14 +14,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ImagePicker imagePicker;
+  late TextRecognizer textRecognizer;
   String? pickedImagePath;
   //bool for change the button state
   bool isImagePicked = false;
+  bool isProcessing = false;
+  String recognizedText = "";
+  Future<String?>? recognizedTextFuture;
 
   @override
   void initState() {
     super.initState();
     imagePicker = ImagePicker();
+    textRecognizer = TextRecognizer(
+      script: TextRecognitionScript.latin,
+    );
   }
 
   //function to pick a image
@@ -62,6 +72,58 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  //function to process image
+  Future<String?> _processImage() async {
+    if (pickedImagePath == null) {
+      return "";
+    }
+
+    setState(() {
+      isProcessing = true;
+      recognizedText = "";
+    });
+
+    try {
+      //conver my image in to input image
+      final inputImage = InputImage.fromFilePath(pickedImagePath!);
+      final RecognizedText textReturnFromModel =
+          await textRecognizer.processImage(inputImage);
+      return textReturnFromModel.text;
+      // debugPrint(textReturnFromModel.text);
+    } catch (e) {
+      debugPrint(e.toString());
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error occured:${e.toString()}"),
+          ),
+        );
+      }
+
+      return "";
+    }
+  }
+
+  //function to clipboard
+  void _copyToClipboard() async {
+    if (recognizedTextFuture != null) {
+      String? recognizedText = await recognizedTextFuture; // Await to get text
+
+      if (recognizedText != null && recognizedText.isNotEmpty) {
+        await Clipboard.setData(
+          ClipboardData(text: recognizedText),
+        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Copied to clipboard"),
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -108,7 +170,12 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        recognizedTextFuture =
+                            _processImage(); // Update Future so FutureBuilder gets notified
+                      });
+                    },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -124,6 +191,49 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+            SizedBox(
+              height: 16,
+            ),
+            if (isProcessing)
+              Expanded(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Recognized Text",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            //fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              _copyToClipboard();
+                            },
+                            icon: Icon(Icons.copy_all))
+                      ],
+                    ),
+                    FutureBuilder(
+                      future: recognizedTextFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator(); // Show a loading indicator
+                        } else if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        } else {
+                          return RecognizedTextPreview(
+                            recognizedText: snapshot.data ?? "No text found",
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              )
           ],
         ),
       ),

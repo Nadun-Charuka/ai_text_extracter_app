@@ -28,7 +28,7 @@ class ImagePreview extends StatelessWidget {
               child: Icon(
                 Icons.image,
                 size: 300,
-                color: Colors.black45,
+                color: mainColor,
               ),
             )
           : Image.file(
