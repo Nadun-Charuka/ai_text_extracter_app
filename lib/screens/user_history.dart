@@ -7,7 +7,12 @@ class UserHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("User History"),
+        title: Text(
+          "User History",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
