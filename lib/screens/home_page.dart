@@ -1,3 +1,4 @@
+import 'package:ai_text_extracter_app/services/store_conversions_firestore.dart';
 import 'package:ai_text_extracter_app/widgets/image_preview.dart';
 import 'package:ai_text_extracter_app/widgets/recognized_text_preview.dart';
 import 'package:flutter/material.dart';
@@ -90,8 +91,25 @@ class _HomePageState extends State<HomePage> {
       final inputImage = InputImage.fromFilePath(pickedImagePath!);
       final RecognizedText textReturnFromModel =
           await textRecognizer.processImage(inputImage);
+
+      //stroe textReturnFromModel.text to firestore
+      if (recognizedTextFuture!.toString().isNotEmpty) {
+        try {
+          await StoreConversionsFirestore().storeConversionData(
+            conversionData: recognizedTextFuture,
+            conversionDate: DateTime.now(),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Text Stored successfully"),
+            ),
+          );
+        } catch (e) {
+          debugPrint("$e");
+        }
+      }
+
       return textReturnFromModel.text;
-      // debugPrint(textReturnFromModel.text);
     } catch (e) {
       debugPrint(e.toString());
       if (context.mounted) {
