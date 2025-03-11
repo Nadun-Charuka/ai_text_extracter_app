@@ -87,18 +87,20 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      //conver my image in to input image
+      //convert my image in to input image
       final inputImage = InputImage.fromFilePath(pickedImagePath!);
       final RecognizedText textReturnFromModel =
           await textRecognizer.processImage(inputImage);
 
       //stroe textReturnFromModel.text to firestore
-      if (recognizedTextFuture!.toString().isNotEmpty) {
+
+      if (textReturnFromModel.text.isNotEmpty) {
         try {
           await StoreConversionsFirestore().storeConversionData(
-            conversionData: recognizedTextFuture,
+            conversionData: textReturnFromModel.text,
             conversionDate: DateTime.now(),
           );
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Text Stored successfully"),
@@ -108,7 +110,7 @@ class _HomePageState extends State<HomePage> {
           debugPrint("$e");
         }
       }
-
+      debugPrint(textReturnFromModel.text);
       return textReturnFromModel.text;
     } catch (e) {
       debugPrint(e.toString());
