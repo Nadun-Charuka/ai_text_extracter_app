@@ -13,7 +13,7 @@ class ConversionModel {
 
   //json >> conversion model
   //this is a factry name constructer
-  factory ConversionModel.fromjson(Map<String, dynamic> json) {
+  factory ConversionModel.fromJson(Map<String, dynamic> json) {
     return ConversionModel(
       userId: json["userId"],
       conversionData: json["conversionData"],

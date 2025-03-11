@@ -19,7 +19,7 @@ class StoreConversionsFirestore {
 
       //create a reference to the collection in the firestore
       CollectionReference conversion =
-          _firebaseFirestore.collection('converstions');
+          _firebaseFirestore.collection('conversions');
 
       //data
       final ConversionModel conversionModel = ConversionModel(
@@ -34,5 +34,48 @@ class StoreConversionsFirestore {
     } catch (e) {
       debugPrint("Error from firestore $e");
     }
+  }
+
+  // //method to get all conversions documents for the current user (Strem)
+  // Stream<List<ConversionModel>> getUserConversions() {
+  //   try {
+  //     final userId = _firebaseAuth.currentUser?.uid;
+  //     if (userId == null) {
+  //       throw Exception();
+  //     }
+  //     return _firebaseFirestore
+  //         .collection("conversions")
+  //         .where("userId", isEqualTo: userId)
+  //         .snapshots()
+  //         .map((snapshot) {
+  //       return snapshot.docs.map((doc) {
+  //         return ConversionModel.fromJson(doc.data());
+  //       }).toList();
+  //     });
+  //   } catch (e) {
+  //     debugPrint("error from stream $e");
+  //     return Stream.empty();
+  //   }
+  // }
+
+  //method to get all conversions documents for the current user (Strem)
+  Stream<List<ConversionModel>> getUserConversions() {
+    final userId = _firebaseAuth.currentUser?.uid;
+    if (userId == null) return const Stream.empty();
+
+    return _firebaseFirestore
+        .collection("conversions")
+        .where("userId", isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+      try {
+        return snapshot.docs
+            .map((doc) => ConversionModel.fromJson(doc.data()))
+            .toList();
+      } catch (e) {
+        debugPrint("Error parsing conversions: $e");
+        return []; // Return an empty list if an error occurs
+      }
+    });
   }
 }
