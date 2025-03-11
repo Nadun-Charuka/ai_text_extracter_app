@@ -28,6 +28,9 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           color: mainColor,
         ),
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: mainColor,
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0,
