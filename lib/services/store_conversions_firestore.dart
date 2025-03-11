@@ -36,28 +36,6 @@ class StoreConversionsFirestore {
     }
   }
 
-  // //method to get all conversions documents for the current user (Strem)
-  // Stream<List<ConversionModel>> getUserConversions() {
-  //   try {
-  //     final userId = _firebaseAuth.currentUser?.uid;
-  //     if (userId == null) {
-  //       throw Exception();
-  //     }
-  //     return _firebaseFirestore
-  //         .collection("conversions")
-  //         .where("userId", isEqualTo: userId)
-  //         .snapshots()
-  //         .map((snapshot) {
-  //       return snapshot.docs.map((doc) {
-  //         return ConversionModel.fromJson(doc.data());
-  //       }).toList();
-  //     });
-  //   } catch (e) {
-  //     debugPrint("error from stream $e");
-  //     return Stream.empty();
-  //   }
-  // }
-
   //method to get all conversions documents for the current user (Strem)
   Stream<List<ConversionModel>> getUserConversions() {
     final userId = _firebaseAuth.currentUser?.uid;
