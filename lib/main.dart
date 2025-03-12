@@ -3,10 +3,16 @@ import 'package:ai_text_extracter_app/firebase_options.dart';
 import 'package:ai_text_extracter_app/main_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //load the env
+  await dotenv.load(fileName: ".env");
+  Stripe.publishableKey = dotenv.env["STRIPE_PUBLISHABLE_KEY"] ?? "";
+  //debugPrint("Stripe key: ${Stripe.publishableKey}");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
