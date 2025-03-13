@@ -17,7 +17,23 @@ class UserHistoryPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("History Conversions"),
+        title: const Text(
+          "History Conversions",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          isPremiumProvider.isPremium
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.star,
+                    color: Colors.amberAccent,
+                  ),
+                )
+              : SizedBox()
+        ],
       ),
       body: isPremiumProvider.isPremium
           ? const UserHistoryWidget() // Load only the history content
