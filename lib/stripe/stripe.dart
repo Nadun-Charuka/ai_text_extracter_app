@@ -1,9 +1,10 @@
 //stripe init method
 import 'package:ai_text_extracter_app/stripe/stripe_api_service.dart';
+import 'package:ai_text_extracter_app/stripe/stripe_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
-Future<void> inti({
+Future<void> init({
   required String name,
   required String email,
 }) async {
@@ -32,9 +33,9 @@ Future<void> inti({
 
   //retrieve customer payement methods
   Map<String, dynamic>? customerPaymentMethods =
-      await getCustomerPaymentMethods(customerId: customer["id"]);
+      await getCustomerPaymentMethods(customer["id"]);
   if (customerPaymentMethods == null ||
-      customerPaymentMethods['data'].isEmpty) {
+      customerPaymentMethods["data"].isEmpty) {
     throw Exception('Failed to get customer payment methods.');
   }
 
@@ -46,7 +47,22 @@ Future<void> inti({
   if (subscription == null || subscription['id'] == null) {
     throw Exception('Failed to create subscription.');
   }
+
+  //store the subscription data in firestore
+  StripeStorage().storeSubscriptionDetails(
+    customerId: customer["id"],
+    email: email,
+    userName: name,
+    subscriptionId: subscription["id"],
+    paymentStatus: "active",
+    startDate: DateTime.now(),
+    endDate: DateTime.now().add(Duration(days: 30)),
+    planId: "price_1R1sjrE15SVEt9jixC7oSNqT",
+    amountPaid: 4.99,
+    currency: "USD",
+  );
 }
+//************************************************************************** */
 
 //create customer
 Future<Map<String, dynamic>?> createCustomer({
@@ -54,7 +70,7 @@ Future<Map<String, dynamic>?> createCustomer({
   required String name,
 }) async {
   final customerCreationResponse = await stripeApiService(
-    requestMethode: ApiServiceMethodeType.post,
+    requestMethod: ApiServiceMethodeType.post,
     endPoint: "customers",
     requestBody: {
       "name": name,
@@ -69,11 +85,11 @@ Future<Map<String, dynamic>?> createCustomer({
 Future<Map<String, dynamic>?> createPaymentIntent(
     {required String customerId}) async {
   final paymentIntentCreationResponse = await stripeApiService(
-    requestMethode: ApiServiceMethodeType.post,
+    requestMethod: ApiServiceMethodeType.post,
     endPoint: "setup_intents",
     requestBody: {
       'customer': customerId,
-      'automatic_payment_methods[enabled]': true,
+      'automatic_payment_methods[enabled]': 'true',
     },
   );
 
@@ -98,12 +114,12 @@ Future<void> createCreaditCard({
 }
 
 //get customer payment method
-Future<Map<String, dynamic>?> getCustomerPaymentMethods({
-  required String customerId,
-}) async {
+Future<Map<String, dynamic>?> getCustomerPaymentMethods(
+  String customerId,
+) async {
   final customerPaymentMethodsResponse = await stripeApiService(
-    requestMethode: ApiServiceMethodeType.get,
-    endPoint: "customers/$customerId/payment_method",
+    requestMethod: ApiServiceMethodeType.get,
+    endPoint: "customers/$customerId/payment_methods",
   );
   return customerPaymentMethodsResponse;
 }
@@ -114,7 +130,7 @@ Future<Map<String, dynamic>?> createSubscription({
   required String paymentId,
 }) async {
   final subscriptionCreationResponse = await stripeApiService(
-      requestMethode: ApiServiceMethodeType.post,
+      requestMethod: ApiServiceMethodeType.post,
       endPoint: "subscriptions",
       requestBody: {
         'customer': customerId,

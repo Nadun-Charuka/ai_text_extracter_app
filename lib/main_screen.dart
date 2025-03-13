@@ -1,6 +1,6 @@
 import 'package:ai_text_extracter_app/constants/colors.dart';
 import 'package:ai_text_extracter_app/screens/home_page.dart';
-import 'package:ai_text_extracter_app/screens/user_history.dart';
+import 'package:ai_text_extracter_app/screens/user_history_page.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
         unselectedItemColor: Color.fromARGB(255, 3, 42, 34),
         backgroundColor: mainColor,
       ),
-      body: _selectedIndex == 0 ? HomePage() : UserHistory(),
+      body: _selectedIndex == 0 ? HomePage() : UserHistoryPage(),
     );
   }
 }

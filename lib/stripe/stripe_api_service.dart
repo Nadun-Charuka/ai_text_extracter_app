@@ -17,13 +17,13 @@ final Map<String, String> requestHeaders = {
 };
 
 Future<Map<String, dynamic>?> stripeApiService({
-  required ApiServiceMethodeType requestMethode,
+  required ApiServiceMethodeType requestMethod,
   Map<String, dynamic>? requestBody,
   required String endPoint,
 }) async {
   final requestUrl = "$baseUrl/$endPoint";
   try {
-    final requestResponse = requestMethode == ApiServiceMethodeType.get
+    final requestResponse = requestMethod == ApiServiceMethodeType.get
         ? await http.get(
             Uri.parse(requestUrl),
             headers: requestHeaders,
